@@ -1,0 +1,20 @@
+--- a/src/video/kmsdrm/SDL_kmsdrmevents.c
++++ b/src/video/kmsdrm/SDL_kmsdrmevents.c
+@@ -43,7 +43,7 @@
+ 	}
+ 
+ 	udev_enumerate_add_match_subsystem(enumerate, "input");
+-	udev_enumerate_add_match_property(enumerate, property, "1");
++	//udev_enumerate_add_match_property(enumerate, property, "1");
+ 	udev_enumerate_scan_devices(enumerate);
+ 
+ 	devices = udev_enumerate_get_list_entry(enumerate);
+@@ -235,7 +235,7 @@
+ 	[KEY_INSERT] = SDLK_INSERT,
+ 	[KEY_DELETE] = SDLK_DELETE,
+ 
+-	[KEY_POWER] = SDLK_POWER,
++	[KEY_POWER] = SDLK_HOME,
+ 	[KEY_KPEQUAL] = SDLK_KP_EQUALS,
+ 	[KEY_PAUSE] = SDLK_PAUSE,
+ 

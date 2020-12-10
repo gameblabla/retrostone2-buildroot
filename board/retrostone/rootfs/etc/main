@@ -1,0 +1,10 @@
+#!/bin/sh
+export HOME=/home/retrostone
+export SDL_NOMOUSE=1
+START=$HOME/autoexec.sh
+
+while [ 1 ]
+do
+	cd $HOME
+	exec $START
+done

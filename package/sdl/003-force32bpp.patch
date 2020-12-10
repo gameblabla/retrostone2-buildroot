@@ -1,0 +1,25 @@
+The Allwinner HW Scaler only supports 32bpp.
+Make sure to force the final's output to 32bpp for other resolutions
+so it can fallback to using a software shadow surface.
+
+--- a/src/video/kmsdrm/SDL_kmsdrmvideo.c
++++ b/src/video/kmsdrm/SDL_kmsdrmvideo.c
+@@ -315,9 +315,15 @@
+ 	}
+ }
+ 
+-static int KMSDRM_VideoModeOK(_THIS, int width, int height, int bpp, Uint32 flags)
+-{
+-	return (bpp); /* TODO: check that the resolution is really OK */
++static int KMSDRM_VideoModeOK(_THIS, int width, int height, int bpp, Uint32 flags) {
++	switch(bpp)
++	{
++		default:
++		return 32;
++		case 24:
++		case 32:
++		return (bpp); /* TODO: check that the resolution is really OK */
++	}
+ }
+ 
+ static int KMSDRM_SetCrtcParams(_THIS, drmModeAtomicReqPtr req, Uint32 plane_id,
