@@ -1,96 +1,58 @@
 ################################################################################
 #
-# sdl
+# SDL_Lite 1.2.x
 #
 ################################################################################
 
-SDL_VERSION = 1.2.15
-SDL_SOURCE = SDL-$(SDL_VERSION).tar.gz
-SDL_SITE = http://www.libsdl.org/release
-SDL_LICENSE = LGPL-2.1+
-SDL_LICENSE_FILES = COPYING
+SDL_VERSION = 9b5bb8254ac7e0834eddb52765fa3f47c2a130ab
+SDL_SITE = $(call github,gameblabla,SDL_Lite,$(SDL_VERSION))
 SDL_INSTALL_STAGING = YES
+SDL_DEPENDENCIES = host-pkgconf libdrm
 
-# we're patching configure.in, but package cannot autoreconf with our version of
-# autotools, so we have to do it manually instead of setting SDL_AUTORECONF = YES
-define SDL_RUN_AUTOGEN
-	cd $(@D) && PATH=$(BR_PATH) ./autogen.sh
-endef
-
-SDL_PRE_CONFIGURE_HOOKS += SDL_RUN_AUTOGEN
-HOST_SDL_PRE_CONFIGURE_HOOKS += SDL_RUN_AUTOGEN
-
-SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
-HOST_SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
-
-SDL_CONF_OPTS += --enable-video-qtopia=no
-
-ifeq ($(BR2_PACKAGE_SDL_FBCON),y)
-SDL_CONF_OPTS += --enable-video-fbcon=yes
-else
-SDL_CONF_OPTS += --enable-video-fbcon=no
-endif
-
-ifeq ($(BR2_PACKAGE_SDL_DIRECTFB),y)
-SDL_DEPENDENCIES += directfb
-SDL_CONF_OPTS += --enable-video-directfb=yes
-SDL_CONF_ENV = ac_cv_path_DIRECTFBCONFIG=$(STAGING_DIR)/usr/bin/directfb-config
-else
-SDL_CONF_OPTS += --enable-video-directfb=no
-endif
-
-ifeq ($(BR2_PACKAGE_SDL_X11),y)
-SDL_CONF_OPTS += --enable-video-x11=yes
-SDL_DEPENDENCIES += \
-	xlib_libX11 xlib_libXext \
-	$(if $(BR2_PACKAGE_XLIB_LIBXRENDER), xlib_libXrender) \
-	$(if $(BR2_PACKAGE_XLIB_LIBXRANDR), xlib_libXrandr)
-else
-SDL_CONF_OPTS += --enable-video-x11=no
-endif
-
-ifneq ($(BR2_USE_MMU),y)
-SDL_CONF_OPTS += --enable-dga=no
-endif
-
-# overwrite autodection (prevents confusion with host libpth version)
-ifeq ($(BR2_PACKAGE_LIBPTHSEM_COMPAT),y)
-SDL_CONF_OPTS += --enable-pth
-SDL_CONF_ENV += ac_cv_path_PTH_CONFIG=$(STAGING_DIR)/usr/bin/pth-config
-SDL_DEPENDENCIES += libpthsem
-else
-SDL_CONF_OPTS += --disable-pth
-endif
-
-ifeq ($(BR2_PACKAGE_TSLIB),y)
-SDL_DEPENDENCIES += tslib
+ifeq ($(BR2_STATIC_LIBS),y)
+SDL_CONF_OPTS += STATIC_ENABLED=1
 endif
 
 ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
 SDL_DEPENDENCIES += alsa-lib
+SDL_CONF_OPTS += ALSA=1
 endif
 
-ifeq ($(BR2_PACKAGE_MESA3D),y)
-SDL_DEPENDENCIES += mesa3d
+ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
+SDL_DEPENDENCIES += pulseaudio
+SDL_CONF_OPTS += PULSE=1
 endif
 
-SDL_CONF_OPTS += \
-	--disable-rpath \
-	--enable-pulseaudio=no \
-	--disable-arts \
-	--disable-esd \
-	--disable-nasm \
-	--disable-video-ps3
+# Enables ARMv8 + NEON code. For now though, it is not used internally by SDL
+ifeq ($(BR2_ARM_FPU_NEON_FP_ARMV8),y)
+SDL_CONF_OPTS += NEON_A64=1
+else
+# Only for ARM 32-bits
+ifeq ($(BR2_ARM_CPU_HAS_ARM)$(BR2_ARM_CPU_HAS_NEON),yy)
+SDL_CONF_OPTS += NEON=1
+endif
+endif
 
-HOST_SDL_CONF_OPTS += \
-	--enable-pulseaudio=no \
-	--enable-video-x11=no \
-	--disable-arts \
-	--disable-esd \
-	--disable-nasm \
-	--disable-video-ps3
+ifeq ($(BR2_PACKAGE_SDL_FBCON),y)
+SDL_CONF_OPTS += FBDEV=1
+endif
 
-SDL_CONFIG_SCRIPTS = sdl-config
+ifeq ($(BR2_PACKAGE_SDL_KMSDRM),y)
+SDL_CONF_OPTS += KMSDRM=1
+endif
 
-$(eval $(autotools-package))
-$(eval $(host-autotools-package))
+SDL_MAKE_ENV = AS="$(TARGET_AS)" CC="$(TARGET_CC)" PREFIX=/usr PKG_CONFIG="$(BASE_DIR)/host/bin/pkg-config" CFLAGS="$(TARGET_CFLAGS) -fPIC -flto"
+
+define SDL_BUILD_CMDS
+	$(SDL_MAKE_ENV) $(MAKE) -C $(@D) $(SDL_CONF_OPTS)
+endef
+
+define SDL_INSTALL_STAGING_CMDS
+	$(SDL_MAKE_ENV) DESTDIR="$(STAGING_DIR)" $(MAKE) -C $(@D) install
+endef
+
+define SDL_INSTALL_TARGET_CMDS
+	$(SDL_MAKE_ENV) DESTDIR="$(TARGET_DIR)" $(MAKE) -C $(@D) install-lib
+endef
+
+$(eval $(generic-package))
