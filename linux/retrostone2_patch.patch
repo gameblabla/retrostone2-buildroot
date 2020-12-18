@@ -15,7 +15,7 @@ new file mode 100644
 index 000000000..547381d62
 --- /dev/null
 +++ b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
-@@ -0,0 +1,431 @@
+@@ -0,0 +1,540 @@
 +/*
 + * This is based on sun4i-a10-olinuxino-lime.dts
 + *
@@ -68,6 +68,7 @@ index 000000000..547381d62
 +#include <dt-bindings/gpio/gpio.h>
 +#include <dt-bindings/interrupt-controller/irq.h>
 +#include <dt-bindings/pwm/pwm.h>
++#include <dt-bindings/input/input.h>
 +
 +/ {
 +	model = "8BCraft Retrostone 2";
@@ -167,6 +168,114 @@ index 000000000..547381d62
 +		clocks = <&ccu CLK_OUT_A>;
 +		clock-names = "ext_clock";
 +	};
++	
++
++	gpio_keys: gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		autorepeat;
++
++		button@0 {
++			label = "D-pad up";
++			linux,code = <KEY_UP>;
++			linux,can-disable;
++			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
++		};
++
++		button@1 {
++			label = "D-pad down";
++			linux,code = <KEY_DOWN>;
++			linux,can-disable;
++			gpios = <&pio 7 7 GPIO_ACTIVE_LOW>;
++		};
++
++		button@2 {
++			label = "D-pad left";
++			linux,code = <KEY_LEFT>;
++			linux,can-disable;
++			gpios = <&pio 7 4 GPIO_ACTIVE_LOW>;
++		};
++
++		button@3 {
++			label = "D-pad right";
++			linux,code = <KEY_RIGHT>;
++			linux,can-disable;
++			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
++		};
++
++		button@4 {
++			label = "Button A";
++			linux,code = <KEY_LEFTCTRL>;
++			linux,can-disable;
++			gpios = <&pio 7 0 GPIO_ACTIVE_LOW>;
++		};
++
++		button@5 {
++			label = "Button B";
++			linux,code = <KEY_LEFTALT>;
++			linux,can-disable;
++			gpios = <&pio 7 11 GPIO_ACTIVE_LOW>;
++		};
++
++		btn6: button@6 {
++			label = "Button Y";
++			linux,code = <KEY_SPACE>;
++			linux,can-disable;
++			gpios = <&pio 7 20 GPIO_ACTIVE_LOW>;
++		};
++
++		btn7: button@7 {
++			label = "Button X";
++			linux,code = <KEY_LEFTSHIFT>;
++			linux,can-disable;
++			gpios = <&pio 7 12 GPIO_ACTIVE_LOW>;
++		};
++
++		btn8: button@8 {
++			label = "Left shoulder button";
++			linux,code = <KEY_TAB>;
++			linux,can-disable;
++			gpios = <&pio 7 23 GPIO_ACTIVE_LOW>;
++		};
++
++		btn9: button@9 {
++			label = "Right shoulder button";
++			linux,code = <KEY_BACKSPACE>;
++			linux,can-disable;
++			gpios = <&pio 7 22 GPIO_ACTIVE_LOW>;
++		};
++
++		button@10 {
++			label = "Start button";
++			linux,code = <KEY_ENTER>;
++			linux,can-disable;
++			gpios = <&pio 7 14 GPIO_ACTIVE_LOW>;
++		};
++
++		button@11 {
++			label = "Select button";
++			linux,code = <KEY_ESC>;
++			linux,can-disable;
++			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
++		};
++
++		button@12 {
++			label = "L2 Button";
++			linux,code = <KEY_PAGEUP>;
++			linux,can-disable;
++			gpios = <&pio 7 30 GPIO_ACTIVE_LOW>;
++		};
++
++		button@13 {
++			label = "R2 Button";
++			linux,code = <KEY_PAGEDOWN>;
++			linux,can-disable;
++			gpios = <&pio 7 11 GPIO_ACTIVE_LOW>;
++		};
++	};
++	
 +};
 +
 +&ahci {
@@ -447,6 +556,7 @@ index 000000000..547381d62
 +	status = "okay";
 +};
 +
+
 diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
 index 9ad8e445b..9b0b830f5 100644
 --- a/arch/arm/boot/dts/sun7i-a20.dtsi

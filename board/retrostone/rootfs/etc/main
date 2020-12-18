@@ -1,7 +1,7 @@
 #!/bin/sh
-export HOME=/home/retrostone
+export HOME=/mnt
 export SDL_NOMOUSE=1
-START=/home/retrostone/autoexec.sh
+START=/mnt/autoexec.sh
 #Check if fat32 is flagged as "dirty", and if so unmount, repair, remount
 if dmesg | grep "mmcblk0p3" > /dev/null;  then
 echo -e "\e[31mUnclean shutdown detected.\e[0m"
@@ -11,14 +11,9 @@ fsck.vfat -y /dev/mmcblk0p3 > /dev/null;
 mount /dev/mmcblk0p3 /mnt -t vfat -o rw,sync,utf8
 echo -e "\e[32mCheck complete.\e[0m"
 fi
-
 while [ 1 ]
 do
-	if test -f "$START"; then
-		source $START
-    	else
-		cd $HOME/gmenu2x;
-		./gmenu2x > /dev/null 2>&1;
-	fi
-        clear
+	cd $HOME
+	exec $START
+    clear
 done
