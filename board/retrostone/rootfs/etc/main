@@ -3,6 +3,14 @@ export HOME=/mnt
 export SDL_NOMOUSE=1
 START=$HOME/autoexec.sh
 
+amixer -c 0 sset 'Left Mixer Left DAC' mute > /dev/null 2>&1;
+amixer -c 0 sset 'Right Mixer Left DAC' mute > /dev/null 2>&1;
+amixer -c 0 sset 'Right Mixer Right DAC' mute > /dev/null 2>&1;
+amixer -c 0 sset 'Power Amplifier Mixer' mute > /dev/null 2>&1;
+amixer -c 0 sset 'Power Amplifier DAC' unmute > /dev/null 2>&1;
+amixer -c 0 sset 'Power Amplifier Mute' unmute > /dev/null 2>&1;
+amixer -c 0 sset 'Power Amplifier' 65% > /dev/null 2>&1;
+
 # Run GPIO app thing that creates a virtual uinput interface
 /usr/bin/key_driver &
 
