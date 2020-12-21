@@ -20,8 +20,8 @@
 ::sysinit:/bin/mkdir -p /dev/shm
 ::sysinit:/bin/mount -a
 ::sysinit:/bin/hostname -F /etc/hostname
-::sysinit:/bin/mount /dev/mmcblk0p3 /mnt -t vfat -o rw,sync,utf8
-::sysinit:/sbin/swapon /dev/mmcblk0p2
+::sysinit:/bin/mount /dev/mmcblk0p2 /mnt -t vfat -o rw,sync,utf8
+#::sysinit:/sbin/swapon /dev/mmcblk0p2
 
 # now run any rc scripts
 #::sysinit:/etc/init.d/rcS

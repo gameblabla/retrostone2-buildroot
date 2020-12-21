@@ -10,30 +10,12 @@ index 9f4bc9e02..2ceacb164 100644
  	sun7i-a20-wexler-tab7200.dtb \
  	sun7i-a20-wits-pro-a20-dkt.dtb
  dtb-$(CONFIG_MACH_SUN8I) += \
---- a/arch/arm/configs/sunxi_defconfig
-+++ b/arch/arm/configs/sunxi_defconfig
-@@ -174,3 +174,14 @@
- CONFIG_DMA_CMA=y
- CONFIG_PRINTK_TIME=y
- CONFIG_DEBUG_FS=y
-+CONFIG_KEYBOARD_GPIO=y
-+CONFIG_INPUT_UINPUT=y
-+CONFIG_INPUT_GPIO_DECODER=y
-+CONFIG_INPUT_EVDEV=y
-+CONFIG_SQUASHFS=y
-+CONFIG_SQUASHFS_FILE_DIRECT=y
-+CONFIG_SQUASHFS_DECOMP_MULTI=y
-+CONFIG_SQUASHFS_ZSTD=y
-+CONFIG_INPUT_JOYSTICK=y
-+CONFIG_I2C_GPIO=y
-+CONFIG_SPI_GPIO=y
-
 diff --git a/arch/arm/boot/dts/sun7i-a20-retrostone2.dts b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
 new file mode 100644
 index 000000000..547381d62
 --- /dev/null
 +++ b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
-@@ -0,0 +1,397 @@
+@@ -0,0 +1,540 @@
 +/*
 + * This is based on sun4i-a10-olinuxino-lime.dts
 + *
@@ -126,6 +108,7 @@ index 000000000..547381d62
 +		compatible = "lemaker,bl035-rgb-002";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
++		power-supply = <&panel_power>;
 +		backlight = <&backlight>;
 +
 +		port@0 {
@@ -139,6 +122,17 @@ index 000000000..547381d62
 +			};
 +		};
 +	};
++
++	panel_power: panel_power {
++		compatible = "regulator-fixed";
++		regulator-name = "panel-power";
++		regulator-min-microvolt = <10400000>;
++		regulator-max-microvolt = <10400000>;
++		gpio = <&pio 7 12 GPIO_ACTIVE_HIGH>; /* PH12 */
++		enable-active-high;
++		regulator-boot-on;
++	};
++
 +
 +	hdmi-connector {
 +		compatible = "hdmi-connector";
@@ -162,6 +156,7 @@ index 000000000..547381d62
 +			default-state = "on";
 +		};
 +	};
++
 +        mmc2_pwrseq: mmc2_pwrseq {
 +                compatible = "mmc-pwrseq-emmc";
 +                reset-gpios = <&pio 2 16 GPIO_ACTIVE_LOW>;
@@ -173,6 +168,114 @@ index 000000000..547381d62
 +		clocks = <&ccu CLK_OUT_A>;
 +		clock-names = "ext_clock";
 +	};
++	
++
++	gpio_keys: gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		autorepeat;
++
++		button@0 {
++			label = "D-pad up";
++			linux,code = <KEY_UP>;
++			linux,can-disable;
++			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
++		};
++
++		button@1 {
++			label = "D-pad down";
++			linux,code = <KEY_DOWN>;
++			linux,can-disable;
++			gpios = <&pio 7 7 GPIO_ACTIVE_LOW>;
++		};
++
++		button@2 {
++			label = "D-pad left";
++			linux,code = <KEY_LEFT>;
++			linux,can-disable;
++			gpios = <&pio 7 4 GPIO_ACTIVE_LOW>;
++		};
++
++		button@3 {
++			label = "D-pad right";
++			linux,code = <KEY_RIGHT>;
++			linux,can-disable;
++			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
++		};
++
++		button@4 {
++			label = "Button A";
++			linux,code = <KEY_LEFTCTRL>;
++			linux,can-disable;
++			gpios = <&pio 7 0 GPIO_ACTIVE_LOW>;
++		};
++
++		button@5 {
++			label = "Button B";
++			linux,code = <KEY_LEFTALT>;
++			linux,can-disable;
++			gpios = <&pio 7 11 GPIO_ACTIVE_LOW>;
++		};
++
++		btn6: button@6 {
++			label = "Button Y";
++			linux,code = <KEY_SPACE>;
++			linux,can-disable;
++			gpios = <&pio 7 20 GPIO_ACTIVE_LOW>;
++		};
++
++		btn7: button@7 {
++			label = "Button X";
++			linux,code = <KEY_LEFTSHIFT>;
++			linux,can-disable;
++			gpios = <&pio 7 12 GPIO_ACTIVE_LOW>;
++		};
++
++		btn8: button@8 {
++			label = "Left shoulder button";
++			linux,code = <KEY_TAB>;
++			linux,can-disable;
++			gpios = <&pio 7 23 GPIO_ACTIVE_LOW>;
++		};
++
++		btn9: button@9 {
++			label = "Right shoulder button";
++			linux,code = <KEY_BACKSPACE>;
++			linux,can-disable;
++			gpios = <&pio 7 22 GPIO_ACTIVE_LOW>;
++		};
++
++		button@10 {
++			label = "Start button";
++			linux,code = <KEY_ENTER>;
++			linux,can-disable;
++			gpios = <&pio 7 14 GPIO_ACTIVE_LOW>;
++		};
++
++		button@11 {
++			label = "Select button";
++			linux,code = <KEY_ESC>;
++			linux,can-disable;
++			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
++		};
++
++		button@12 {
++			label = "L2 Button";
++			linux,code = <KEY_PAGEUP>;
++			linux,can-disable;
++			gpios = <&pio 7 30 GPIO_ACTIVE_LOW>;
++		};
++
++		button@13 {
++			label = "R2 Button";
++			linux,code = <KEY_PAGEDOWN>;
++			linux,can-disable;
++			gpios = <&pio 7 11 GPIO_ACTIVE_LOW>;
++		};
++	};
++	
 +};
 +
 +&ahci {
@@ -192,12 +295,17 @@ index 000000000..547381d62
 +	status = "okay";
 +};
 +
-+&gmac_mdio {
++&gmac {
++	pinctrl-names = "default";
++	pinctrl-0 = <&gmac_mii_pins>;
++	phy = <&phy1>;
++	phy-mode = "mii";
++	status = "okay";
++
 +	phy1: ethernet-phy@1 {
 +		reg = <1>;
 +	};
 +};
-+
 +
 +&hdmi {
 +	status = "okay";
@@ -209,14 +317,31 @@ index 000000000..547381d62
 +	};
 +};
 +
-+
 +&i2c0 {
 +	status = "okay";
 +
 +	axp209: pmic@34 {
++		compatible = "x-powers,axp209";
 +		reg = <0x34>;
 +		interrupt-parent = <&nmi_intc>;
 +		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		axp_gpio: gpio {
++			compatible = "x-powers,axp209-gpio";
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio0_adc: gpio0-adc {
++				pins = "GPIO0";
++				function = "adc";
++			};
++			gpio1_adc: gpio1-adc {
++				pins = "GPIO1";
++				function = "adc";
++			};
++		};
 +	};
 +};
 +
