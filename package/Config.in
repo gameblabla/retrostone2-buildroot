@@ -237,6 +237,7 @@ comment "Fonts"
 	source "package/cantarell/Config.in"
 	source "package/dejavu/Config.in"
 	source "package/font-awesome/Config.in"
+	source "package/fonts-droid/Config.in"
 	source "package/ghostscript-fonts/Config.in"
 	source "package/inconsolata/Config.in"
 	source "package/liberation/Config.in"
@@ -1975,6 +1976,10 @@ menu "Text and terminal handling"
 	source "package/slang/Config.in"
 	source "package/tclap/Config.in"
 	source "package/utf8proc/Config.in"
+	source "package/gmenu2x/Config.in"
+	source "package/libini/Config.in"
+	source "package/libopk/Config.in"
+	source "package/libxdgmime/Config.in"
 endmenu
 
 endmenu

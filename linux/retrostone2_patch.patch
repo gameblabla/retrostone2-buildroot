@@ -12,28 +12,39 @@ index 9f4bc9e02..2ceacb164 100644
  dtb-$(CONFIG_MACH_SUN8I) += \
 --- a/arch/arm/configs/sunxi_defconfig
 +++ b/arch/arm/configs/sunxi_defconfig
-@@ -174,3 +174,14 @@
+@@ -174,3 +174,25 @@
  CONFIG_DMA_CMA=y
  CONFIG_PRINTK_TIME=y
  CONFIG_DEBUG_FS=y
 +CONFIG_KEYBOARD_GPIO=y
++CONFIG_KEYBOARD_GPIO_POLLED=y
 +CONFIG_INPUT_UINPUT=y
 +CONFIG_INPUT_GPIO_DECODER=y
 +CONFIG_INPUT_EVDEV=y
 +CONFIG_SQUASHFS=y
 +CONFIG_SQUASHFS_FILE_DIRECT=y
 +CONFIG_SQUASHFS_DECOMP_MULTI=y
++CONFIG_HZ_24=y
 +CONFIG_SQUASHFS_ZSTD=y
 +CONFIG_INPUT_JOYSTICK=y
 +CONFIG_I2C_GPIO=y
 +CONFIG_SPI_GPIO=y
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_LOOP_MIN_COUNT=0
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_PREEMPT_VOLUNTARY=y
++CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y
++CONFIG_EMBEDDED=y
 
 diff --git a/arch/arm/boot/dts/sun7i-a20-retrostone2.dts b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
 new file mode 100644
 index 000000000..547381d62
 --- /dev/null
 +++ b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
-@@ -0,0 +1,401 @@
+@@ -0,0 +1,408 @@
 +/*
 + * This is based on sun4i-a10-olinuxino-lime.dts
 + *
@@ -162,10 +173,11 @@ index 000000000..547381d62
 +			default-state = "on";
 +		};
 +	};
-+        mmc2_pwrseq: mmc2_pwrseq {
-+                compatible = "mmc-pwrseq-emmc";
-+                reset-gpios = <&pio 2 16 GPIO_ACTIVE_LOW>;
-+        };
++	
++	mmc2_pwrseq: mmc2_pwrseq {
++		compatible = "mmc-pwrseq-emmc";
++		reset-gpios = <&pio 2 16 GPIO_ACTIVE_LOW>;
++	};
 +
 +	mmc3_pwrseq: mmc3_pwrseq {
 +		compatible = "mmc-pwrseq-simple";
@@ -285,6 +297,12 @@ index 000000000..547381d62
 +};
 +
 +&pio {
++	vcc-pa-supply = <&reg_vcc3v3>;
++	vcc-pc-supply = <&reg_vcc3v3>;
++	vcc-pe-supply = <&reg_ldo3>;
++	vcc-pf-supply = <&reg_vcc3v3>;
++	vcc-pg-supply = <&reg_ldo4>;
++	
 +	led_pins_olinuxinolime: led-pins {
 +		pins = "PH2";
 +		function = "gpio_out";
@@ -462,7 +480,7 @@ diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-
 index ee6900eb3..8b8d81e8e 100644
 --- a/drivers/gpu/drm/panel/panel-simple.c
 +++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2363,26 +2363,28 @@
+@@ -2529,26 +2529,27 @@
  };
  
  static const struct drm_display_mode lemaker_bl035_rgb_002_mode = {
@@ -475,7 +493,7 @@ index ee6900eb3..8b8d81e8e 100644
 -	.vsync_start = 240 + 4,
 -	.vsync_end = 240 + 4 + 3,
 -	.vtotal = 240 + 4 + 3 + 15,
-+	.clock = 33000,
++	.clock = 25200,
 +	.hdisplay = 640,
 +	.hsync_start = 640 + 16,
 +	.hsync_end = 640 + 16 + 30,
@@ -484,7 +502,6 @@ index ee6900eb3..8b8d81e8e 100644
 +	.vsync_start = 480 + 10,
 +	.vsync_end = 480 + 10 + 3,
 +	.vtotal = 480 + 10 + 3 + 32,
-+	//.vrefresh = 60,
 +	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
  };
  
@@ -501,4 +518,3 @@ index ee6900eb3..8b8d81e8e 100644
  };
  
  static const struct drm_display_mode lg_lb070wv8_mode = {
-

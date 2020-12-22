@@ -1,32 +1,10 @@
 #!/bin/sh
-export HOME=/mnt
+export HOME=/home/retrostone
 export SDL_NOMOUSE=1
 START=$HOME/autoexec.sh
-
-amixer -c 0 sset 'Left Mixer Left DAC' mute > /dev/null 2>&1;
-amixer -c 0 sset 'Right Mixer Left DAC' mute > /dev/null 2>&1;
-amixer -c 0 sset 'Right Mixer Right DAC' mute > /dev/null 2>&1;
-amixer -c 0 sset 'Power Amplifier Mixer' mute > /dev/null 2>&1;
-amixer -c 0 sset 'Power Amplifier DAC' unmute > /dev/null 2>&1;
-amixer -c 0 sset 'Power Amplifier Mute' unmute > /dev/null 2>&1;
-amixer -c 0 sset 'Power Amplifier' 65% > /dev/null 2>&1;
-
-# Run GPIO app thing that creates a virtual uinput interface
-/usr/bin/key_driver &
-
-#Check if fat32 is flagged as "dirty", and if so unmount, repair, remount
-if dmesg | grep "mmcblk0p2" > /dev/null;  then
-echo -e "\e[31mUnclean shutdown detected.\e[0m"
-echo -e "\e[32mChecking FAT32 partition...\e[0m"
-umount /dev/mmcblk0p2
-fsck.vfat -y /dev/mmcblk0p2 > /dev/null; 
-mount /dev/mmcblk0p2 /mnt -t vfat -o rw,sync,utf8
-echo -e "\e[32mCheck complete.\e[0m"
-fi
 
 while [ 1 ]
 do
 	cd $HOME
 	exec $START
-    clear
 done
