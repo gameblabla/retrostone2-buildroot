@@ -480,7 +480,7 @@ diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-
 index ee6900eb3..8b8d81e8e 100644
 --- a/drivers/gpu/drm/panel/panel-simple.c
 +++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2499,27 +2499,54 @@
+@@ -2499,27 +2499,90 @@
  	.connector_type = DRM_MODE_CONNECTOR_LVDS,
  };
  
@@ -529,6 +529,42 @@ index ee6900eb3..8b8d81e8e 100644
 +		.vsync_start = 480 + 40,
 +		.vsync_end = 480 + 40 + 40,
 +		.vtotal = 480 + 40 + 40 + 40,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
++	{ /* 100 Hz */
++		.clock = 48000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 40,
++		.vsync_end = 480 + 40 + 40,
++		.vtotal = 480 + 40 + 40 + 40,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
++	{ /* 120 Hz */
++		.clock = 48000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 7,
++		.vsync_end = 480 + 7 + 6,
++		.vtotal = 480 + 7 + 6 + 7,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
++	{ /* 30 Hz */
++		.clock = 12000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 7,
++		.vsync_end = 480 + 7 + 6,
++		.vtotal = 480 + 7 + 6 + 7,
 +		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
 +	},
  };
