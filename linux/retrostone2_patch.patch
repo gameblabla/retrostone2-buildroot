@@ -480,10 +480,11 @@ diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-
 index ee6900eb3..8b8d81e8e 100644
 --- a/drivers/gpu/drm/panel/panel-simple.c
 +++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2529,26 +2529,27 @@
+@@ -2499,27 +2499,54 @@
+ 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
  };
  
- static const struct drm_display_mode lemaker_bl035_rgb_002_mode = {
+-static const struct drm_display_mode lemaker_bl035_rgb_002_mode = {
 -	.clock = 7000,
 -	.hdisplay = 320,
 -	.hsync_start = 320 + 20,
@@ -493,21 +494,50 @@ index ee6900eb3..8b8d81e8e 100644
 -	.vsync_start = 240 + 4,
 -	.vsync_end = 240 + 4 + 3,
 -	.vtotal = 240 + 4 + 3 + 15,
-+	.clock = 25200,
-+	.hdisplay = 640,
-+	.hsync_start = 640 + 16,
-+	.hsync_end = 640 + 16 + 30,
-+	.htotal = 640 + 16 + 30 + 114,
-+	.vdisplay = 480,
-+	.vsync_start = 480 + 10,
-+	.vsync_end = 480 + 10 + 3,
-+	.vtotal = 480 + 10 + 3 + 32,
-+	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++static const struct drm_display_mode lemaker_bl035_rgb_002_modes[] = {
++	{ /* 60 Hz */
++		.clock = 24000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 7,
++		.vsync_end = 480 + 7 + 6,
++		.vtotal = 480 + 7 + 6 + 7,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
++	{ /* 50 Hz */
++		.clock = 24000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 40,
++		.vsync_end = 480 + 40 + 40,
++		.vtotal = 480 + 40 + 40 + 40,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
++	{ /* 75 Hz */
++		.clock = 36000,
++		.hdisplay = 640,
++		.hsync_start = 640 + 16,
++		.hsync_end = 640 + 16 + 30,
++		.htotal = 640 + 16 + 30 + 114,
++		.vdisplay = 480,
++		.vsync_start = 480 + 40,
++		.vsync_end = 480 + 40 + 40,
++		.vtotal = 480 + 40 + 40 + 40,
++		.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
++	},
  };
  
  static const struct panel_desc lemaker_bl035_rgb_002 = {
- 	.modes = &lemaker_bl035_rgb_002_mode,
- 	.num_modes = 1,
+-	.modes = &lemaker_bl035_rgb_002_mode,
+-	.num_modes = 1,
++	.modes = lemaker_bl035_rgb_002_modes,
++	.num_modes = ARRAY_SIZE(lemaker_bl035_rgb_002_modes),
 +	.bpc = 8,
  	.size = {
  		.width = 70,
