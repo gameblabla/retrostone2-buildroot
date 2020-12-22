@@ -20,7 +20,6 @@
 ::sysinit:/bin/mkdir -p /dev/shm
 ::sysinit:/bin/mount -a
 ::sysinit:/bin/hostname -F /etc/hostname
-::sysinit:/bin/mount /dev/mmcblk0p2 /home/retrostone -t vfat -o rw,sync,utf8
 ::sysinit:/etc/init_system
 #::sysinit:/sbin/swapon /dev/mmcblk0p2
 
