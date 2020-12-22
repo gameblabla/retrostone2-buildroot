@@ -8,14 +8,14 @@ amixer -c 0 sset 'Power Amplifier Mute' unmute > /dev/null 2>&1;
 amixer -c 0 sset 'Power Amplifier' 60% > /dev/null 2>&1;
 
 #Check if fat32 is flagged as "dirty", and if so unmount, repair, remount
-if dmesg | grep "mmcblk0p2" > /dev/null;  then
-echo -e "\e[31mUnclean shutdown detected.\e[0m"
-echo -e "\e[32mChecking FAT32 partition...\e[0m"
-umount /dev/mmcblk0p2
-fsck.vfat -y /dev/mmcblk0p2 > /dev/null; 
-mount /dev/mmcblk0p2 /mnt -t vfat -o rw,sync,utf8
-echo -e "\e[32mCheck complete.\e[0m"
-fi
+#if dmesg | grep "mmcblk0p2" > /dev/null;  then
+#echo -e "\e[31mUnclean shutdown detected.\e[0m"
+#echo -e "\e[32mChecking FAT32 partition...\e[0m"
+#umount /dev/mmcblk0p2
+#fsck.vfat -y /dev/mmcblk0p2 > /dev/null; 
+#mount /dev/mmcblk0p2 /mnt -t vfat -o rw,sync,utf8
+#echo -e "\e[32mCheck complete.\e[0m"
+#fi
 
 cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 for file in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo "performance" > $file; done

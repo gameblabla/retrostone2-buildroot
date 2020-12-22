@@ -12,7 +12,7 @@ index 9f4bc9e02..2ceacb164 100644
  dtb-$(CONFIG_MACH_SUN8I) += \
 --- a/arch/arm/configs/sunxi_defconfig
 +++ b/arch/arm/configs/sunxi_defconfig
-@@ -174,3 +174,25 @@
+@@ -174,3 +174,33 @@
  CONFIG_DMA_CMA=y
  CONFIG_PRINTK_TIME=y
  CONFIG_DEBUG_FS=y
@@ -38,6 +38,15 @@ index 9f4bc9e02..2ceacb164 100644
 +CONFIG_PREEMPT_VOLUNTARY=y
 +CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y
 +CONFIG_EMBEDDED=y
++CONFIG_DRM_SCHED=y
++CONFIG_DRM_KMS_HELPER=y
++CONFIG_DRM_KMS_FB_HELPER=y
++CONFIG_DRM_FBDEV_EMULATION=y
++CONFIG_DRM_FBDEV_OVERALLOC=100
++CONFIG_DRM_BRIDGE=y
++CONFIG_DRM_PANEL_BRIDGE=y
++CONFIG_VIDEOMODE_HELPERS=y
+
 
 diff --git a/arch/arm/boot/dts/sun7i-a20-retrostone2.dts b/arch/arm/boot/dts/sun7i-a20-retrostone2.dts
 new file mode 100644
@@ -355,7 +364,7 @@ index 000000000..547381d62
 +	regulator-min-microvolt = <2800000>;
 +	regulator-max-microvolt = <2800000>;
 +	regulator-name = "vddio-csi0";
-+	regulator-soft-start;
++	regulator-always-on;
 +	regulator-ramp-delay = <1600>;
 +};
 +
