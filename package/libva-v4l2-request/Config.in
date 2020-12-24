@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LIBVA_V4L2_REQUEST
+	bool "libva-v4l2-request"
+	help
+	  LIBVA for SUNXI
