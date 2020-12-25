@@ -296,11 +296,11 @@ index 000000000..547381d62
 +};
 +
 +&pio {
-+	
-+	
-+	
-+	
-+	
++	vcc-pa-supply = <&reg_vcc3v3>;
++	vcc-pc-supply = <&reg_vcc3v3>;
++	vcc-pe-supply = <&reg_ldo3>;
++	vcc-pf-supply = <&reg_vcc3v3>;
++	vcc-pg-supply = <&reg_ldo4>;
 +	
 +	led_pins_olinuxinolime: led-pins {
 +		pins = "PH2";
@@ -324,8 +324,8 @@ index 000000000..547381d62
 +
 +&reg_dcdc2 {
 +	regulator-always-on;
-+	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1400000>;
++	regulator-min-microvolt = <1300000>;
++	regulator-max-microvolt = <1450000>;
 +	regulator-name = "vdd-cpu";
 +};
 +
@@ -354,7 +354,7 @@ index 000000000..547381d62
 +	regulator-min-microvolt = <2800000>;
 +	regulator-max-microvolt = <2800000>;
 +	regulator-name = "vddio-csi0";
-+	regulator-soft-start;
++	regulator-always-on;
 +	regulator-ramp-delay = <1600>;
 +};
 +
