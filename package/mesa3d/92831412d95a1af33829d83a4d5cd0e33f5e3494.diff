@@ -1,0 +1,27 @@
+diff --git a/src/gallium/drivers/lima/lima_draw.c b/src/gallium/drivers/lima/lima_draw.c
+index 8b7a8680011..8737e5efaf5 100644
+--- a/src/gallium/drivers/lima/lima_draw.c
++++ b/src/gallium/drivers/lima/lima_draw.c
+@@ -175,8 +175,7 @@ lima_clear(struct pipe_context *pctx, unsigned buffers, const struct pipe_scisso
+       clear->depth = util_pack_z(PIPE_FORMAT_Z24X8_UNORM, depth);
+       if (zsbuf)
+          zsbuf->reload &= ~PIPE_CLEAR_DEPTH;
+-   } else
+-      clear->depth = 0x00ffffff;
++   }
+ 
+    if (buffers & PIPE_CLEAR_STENCIL) {
+       clear->stencil = stencil;
+diff --git a/src/gallium/drivers/lima/lima_job.c b/src/gallium/drivers/lima/lima_job.c
+index 6d260f69812..bd56d29a377 100644
+--- a/src/gallium/drivers/lima/lima_job.c
++++ b/src/gallium/drivers/lima/lima_job.c
+@@ -100,6 +100,8 @@ lima_job_create(struct lima_context *ctx)
+    s->damage_rect.minx = s->damage_rect.miny = 0xffff;
+    s->damage_rect.maxx = s->damage_rect.maxy = 0;
+ 
++   s->clear.depth = 0x00ffffff;
++
+    for (int i = 0; i < 2; i++) {
+       util_dynarray_init(s->gem_bos + i, s);
+       util_dynarray_init(s->bos + i, s);

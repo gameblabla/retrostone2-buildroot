@@ -1,0 +1,97 @@
+diff --git a/src/gallium/drivers/lima/lima_job.c b/src/gallium/drivers/lima/lima_job.c
+index 58dba520429..6d260f69812 100644
+--- a/src/gallium/drivers/lima/lima_job.c
++++ b/src/gallium/drivers/lima/lima_job.c
+@@ -344,6 +344,10 @@ lima_pack_reload_plbu_cmd(struct lima_job *job, struct pipe_surface *psurf)
+    struct lima_context *ctx = job->ctx;
+    struct lima_surface *surf = lima_surface(psurf);
+ 
++   struct pipe_surface *cbuf = job->key.cbuf;
++   int level = cbuf->u.tex.level;
++   unsigned first_layer = cbuf->u.tex.first_layer;
++
+    uint32_t va;
+    void *cpu = lima_job_create_stream_bo(
+       job, LIMA_PIPE_PP, lima_reload_buffer_size, &va);
+@@ -386,7 +390,7 @@ lima_pack_reload_plbu_cmd(struct lima_job *job, struct pipe_surface *psurf)
+ 
+    lima_tex_desc *td = cpu + lima_reload_tex_desc_offset;
+    memset(td, 0, lima_min_tex_desc_size);
+-   lima_texture_desc_set_res(ctx, td, psurf->texture, 0, 0);
++   lima_texture_desc_set_res(ctx, td, psurf->texture, level, level, first_layer);
+    td->format = lima_format_get_texel_reload(psurf->format);
+    td->unnorm_coords = 1;
+    td->texture_type = LIMA_TEXTURE_TYPE_2D;
+diff --git a/src/gallium/drivers/lima/lima_resource.c b/src/gallium/drivers/lima/lima_resource.c
+index 3e743892ead..3c417f7e018 100644
+--- a/src/gallium/drivers/lima/lima_resource.c
++++ b/src/gallium/drivers/lima/lima_resource.c
+@@ -660,7 +660,6 @@ static void
+ lima_transfer_unmap_inner(struct lima_context *ctx,
+                           struct pipe_transfer *ptrans)
+ {
+-
+    struct lima_resource *res = lima_resource(ptrans->resource);
+    struct lima_transfer *trans = lima_transfer(ptrans);
+    struct lima_bo *bo = res->bo;
+diff --git a/src/gallium/drivers/lima/lima_texture.c b/src/gallium/drivers/lima/lima_texture.c
+index 0258aa23ec9..4ac363178a9 100644
+--- a/src/gallium/drivers/lima/lima_texture.c
++++ b/src/gallium/drivers/lima/lima_texture.c
+@@ -70,7 +70,7 @@ lima_texture_desc_set_va(lima_tex_desc *desc,
+ void
+ lima_texture_desc_set_res(struct lima_context *ctx, lima_tex_desc *desc,
+                           struct pipe_resource *prsc,
+-                          unsigned first_level, unsigned last_level)
++                          unsigned first_level, unsigned last_level, unsigned first_layer)
+ {
+    unsigned width, height, layout, i;
+    struct lima_resource *lima_res = lima_resource(prsc);
+@@ -102,7 +102,7 @@ lima_texture_desc_set_res(struct lima_context *ctx, lima_tex_desc *desc,
+    uint32_t base_va = lima_res->bo->va;
+ 
+    /* attach first level */
+-   uint32_t first_va = base_va + lima_res->levels[first_level].offset;
++   uint32_t first_va = base_va + lima_res->levels[first_level].offset + first_layer * lima_res->levels[first_level].layer_stride;
+    desc->va_s.va_0 = first_va >> 6;
+    desc->va_s.layout = layout;
+ 
+@@ -125,6 +125,7 @@ lima_update_tex_desc(struct lima_context *ctx, struct lima_sampler_state *sample
+    lima_tex_desc *desc = pdesc;
+    unsigned first_level;
+    unsigned last_level;
++   unsigned first_layer;
+    float max_lod;
+ 
+    memset(desc, 0, desc_size);
+@@ -146,6 +147,7 @@ lima_update_tex_desc(struct lima_context *ctx, struct lima_sampler_state *sample
+ 
+    first_level = texture->base.u.tex.first_level;
+    last_level = texture->base.u.tex.last_level;
++   first_layer = texture->base.u.tex.first_layer;
+    if (last_level - first_level >= LIMA_MAX_MIP_LEVELS)
+       last_level = first_level + LIMA_MAX_MIP_LEVELS - 1;
+ 
+@@ -233,7 +235,7 @@ lima_update_tex_desc(struct lima_context *ctx, struct lima_sampler_state *sample
+    desc->lod_bias += lod_bias_delta;
+ 
+    lima_texture_desc_set_res(ctx, desc, texture->base.texture,
+-                             first_level, last_level);
++                             first_level, last_level, first_layer);
+ }
+ 
+ static unsigned
+diff --git a/src/gallium/drivers/lima/lima_texture.h b/src/gallium/drivers/lima/lima_texture.h
+index 0a4afd9ed5a..08a961ba4ae 100644
+--- a/src/gallium/drivers/lima/lima_texture.h
++++ b/src/gallium/drivers/lima/lima_texture.h
+@@ -92,7 +92,8 @@ typedef struct __attribute__((__packed__)) {
+ 
+ void lima_texture_desc_set_res(struct lima_context *ctx, lima_tex_desc *desc,
+                                struct pipe_resource *prsc,
+-                               unsigned first_level, unsigned last_level);
++                               unsigned first_level, unsigned last_level,
++                               unsigned first_layer);
+ void lima_update_textures(struct lima_context *ctx);
+ 
+ 

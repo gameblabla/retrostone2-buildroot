@@ -1,0 +1,122 @@
+diff --git a/src/gallium/drivers/lima/lima_draw.c b/src/gallium/drivers/lima/lima_draw.c
+index 469f18eb6ae..8b7a8680011 100644
+--- a/src/gallium/drivers/lima/lima_draw.c
++++ b/src/gallium/drivers/lima/lima_draw.c
+@@ -193,7 +193,8 @@ lima_clear(struct pipe_context *pctx, unsigned buffers, const struct pipe_scisso
+ 
+ enum lima_attrib_type {
+    LIMA_ATTRIB_FLOAT = 0x000,
+-   /* todo: find out what lives here. */
++   LIMA_ATTRIB_I32   = 0x001,
++   LIMA_ATTRIB_U32   = 0x002,
+    LIMA_ATTRIB_I16   = 0x004,
+    LIMA_ATTRIB_U16   = 0x005,
+    LIMA_ATTRIB_I8    = 0x006,
+@@ -202,8 +203,8 @@ enum lima_attrib_type {
+    LIMA_ATTRIB_U8N   = 0x009,
+    LIMA_ATTRIB_I16N  = 0x00A,
+    LIMA_ATTRIB_U16N  = 0x00B,
+-   /* todo: where is the 32 int */
+-   /* todo: find out what lives here. */
++   LIMA_ATTRIB_I32N  = 0x00D,
++   LIMA_ATTRIB_U32N  = 0x00E,
+    LIMA_ATTRIB_FIXED = 0x101
+ };
+ 
+@@ -232,6 +233,12 @@ lima_pipe_format_to_attrib_type(enum pipe_format format)
+          else
+             return LIMA_ATTRIB_I16;
+       }
++      else if (c->size == 32) {
++         if (c->normalized)
++            return LIMA_ATTRIB_I32N;
++         else
++            return LIMA_ATTRIB_I32;
++      }
+       break;
+    case UTIL_FORMAT_TYPE_UNSIGNED:
+       if (c->size == 8) {
+@@ -246,6 +253,12 @@ lima_pipe_format_to_attrib_type(enum pipe_format format)
+          else
+             return LIMA_ATTRIB_U16;
+       }
++      else if (c->size == 32) {
++         if (c->normalized)
++            return LIMA_ATTRIB_U32N;
++         else
++            return LIMA_ATTRIB_U32;
++      }
+       break;
+    }
+ 
+diff --git a/src/gallium/drivers/lima/lima_screen.c b/src/gallium/drivers/lima/lima_screen.c
+index 9118212cc60..72bae09d0ed 100644
+--- a/src/gallium/drivers/lima/lima_screen.c
++++ b/src/gallium/drivers/lima/lima_screen.c
+@@ -322,7 +322,66 @@ lima_screen_is_format_supported(struct pipe_screen *pscreen,
+ 
+    if (usage & PIPE_BIND_VERTEX_BUFFER) {
+       switch (format) {
++      case PIPE_FORMAT_R32_FLOAT:
++      case PIPE_FORMAT_R32G32_FLOAT:
+       case PIPE_FORMAT_R32G32B32_FLOAT:
++      case PIPE_FORMAT_R32G32B32A32_FLOAT:
++      case PIPE_FORMAT_R32_FIXED:
++      case PIPE_FORMAT_R32G32_FIXED:
++      case PIPE_FORMAT_R32G32B32_FIXED:
++      case PIPE_FORMAT_R32G32B32A32_FIXED:
++      case PIPE_FORMAT_R16_FLOAT:
++      case PIPE_FORMAT_R16G16_FLOAT:
++      case PIPE_FORMAT_R16G16B16_FLOAT:
++      case PIPE_FORMAT_R16G16B16A16_FLOAT:
++      case PIPE_FORMAT_R32_UNORM:
++      case PIPE_FORMAT_R32G32_UNORM:
++      case PIPE_FORMAT_R32G32B32_UNORM:
++      case PIPE_FORMAT_R32G32B32A32_UNORM:
++      case PIPE_FORMAT_R32_SNORM:
++      case PIPE_FORMAT_R32G32_SNORM:
++      case PIPE_FORMAT_R32G32B32_SNORM:
++      case PIPE_FORMAT_R32G32B32A32_SNORM:
++      case PIPE_FORMAT_R32_USCALED:
++      case PIPE_FORMAT_R32G32_USCALED:
++      case PIPE_FORMAT_R32G32B32_USCALED:
++      case PIPE_FORMAT_R32G32B32A32_USCALED:
++      case PIPE_FORMAT_R32_SSCALED:
++      case PIPE_FORMAT_R32G32_SSCALED:
++      case PIPE_FORMAT_R32G32B32_SSCALED:
++      case PIPE_FORMAT_R32G32B32A32_SSCALED:
++      case PIPE_FORMAT_R16_UNORM:
++      case PIPE_FORMAT_R16G16_UNORM:
++      case PIPE_FORMAT_R16G16B16_UNORM:
++      case PIPE_FORMAT_R16G16B16A16_UNORM:
++      case PIPE_FORMAT_R16_SNORM:
++      case PIPE_FORMAT_R16G16_SNORM:
++      case PIPE_FORMAT_R16G16B16_SNORM:
++      case PIPE_FORMAT_R16G16B16A16_SNORM:
++      case PIPE_FORMAT_R16_USCALED:
++      case PIPE_FORMAT_R16G16_USCALED:
++      case PIPE_FORMAT_R16G16B16_USCALED:
++      case PIPE_FORMAT_R16G16B16A16_USCALED:
++      case PIPE_FORMAT_R16_SSCALED:
++      case PIPE_FORMAT_R16G16_SSCALED:
++      case PIPE_FORMAT_R16G16B16_SSCALED:
++      case PIPE_FORMAT_R16G16B16A16_SSCALED:
++      case PIPE_FORMAT_R8_UNORM:
++      case PIPE_FORMAT_R8G8_UNORM:
++      case PIPE_FORMAT_R8G8B8_UNORM:
++      case PIPE_FORMAT_R8G8B8A8_UNORM:
++      case PIPE_FORMAT_R8_SNORM:
++      case PIPE_FORMAT_R8G8_SNORM:
++      case PIPE_FORMAT_R8G8B8_SNORM:
++      case PIPE_FORMAT_R8G8B8A8_SNORM:
++      case PIPE_FORMAT_R8_USCALED:
++      case PIPE_FORMAT_R8G8_USCALED:
++      case PIPE_FORMAT_R8G8B8_USCALED:
++      case PIPE_FORMAT_R8G8B8A8_USCALED:
++      case PIPE_FORMAT_R8_SSCALED:
++      case PIPE_FORMAT_R8G8_SSCALED:
++      case PIPE_FORMAT_R8G8B8_SSCALED:
++      case PIPE_FORMAT_R8G8B8A8_SSCALED:
+          break;
+       default:
+          return false;
