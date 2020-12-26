@@ -325,14 +325,14 @@ index 000000000..547381d62
 +&reg_dcdc2 {
 +	regulator-always-on;
 +	regulator-min-microvolt = <1300000>;
-+	regulator-max-microvolt = <1450000>;
++	regulator-max-microvolt = <1400000>;
 +	regulator-name = "vdd-cpu";
 +};
 +
 +&reg_dcdc3 {
 +	regulator-always-on;
 +	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1400000>;
++	regulator-max-microvolt = <1300000>;
 +	regulator-name = "vdd-int-dll";
 +};
 +
