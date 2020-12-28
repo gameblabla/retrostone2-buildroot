@@ -5,17 +5,14 @@ amixer -c 0 sset 'Right Mixer Right DAC' mute > /dev/null 2>&1;
 amixer -c 0 sset 'Power Amplifier Mixer' mute > /dev/null 2>&1;
 amixer -c 0 sset 'Power Amplifier DAC' unmute > /dev/null 2>&1;
 amixer -c 0 sset 'Power Amplifier Mute' unmute > /dev/null 2>&1;
-amixer -c 0 sset 'Power Amplifier' 60% > /dev/null 2>&1;
-amixer sset 'Master' 50%
+amixer -c 0 sset 'Power Amplifier' 68% > /dev/null 2>&1;
+amixer -c 0 sset 'Master' 100% > /dev/null 2>&1;
 
-#Check if fat32 is flagged as "dirty", and if so unmount, repair, remount
-if dmesg | grep "mmcblk0p2" > /dev/null;  then
-echo -e "\e[31mUnclean shutdown detected.\e[0m"
-echo -e "\e[32mChecking NTFS partition...\e[0m"
-umount /dev/mmcblk0p2
-ntfsfix -b -d /dev/mmcblk0p2 > /dev/null; 
-echo -e "\e[32mCheck complete.\e[0m"
-fi
+/usr/sbin/parted -s "/dev/mmcblk0" "resizepart 2 -1"
+/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
+/usr/bin/ntfsresize -i -f "/dev/mmcblk0p2"
+/usr/bin/ntfsresize --force --force "/dev/mmcblk0p2"
+/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
 
 # Mount our partition
 /bin/mount -t ntfs3 /dev/mmcblk0p2 /home/retrostone -o noatime,nodiratime,suid,dev,exec,async,uid=1000,gid=100,umask=022,fmask=022,dmask=022,discard,nls=utf8,prealloc,force

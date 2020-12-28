@@ -1,0 +1,11 @@
+--- a/r6p2/src/devicedrv/mali/linux/mali_kernel_linux.c
++++ b/r6p2/src/devicedrv/mali/linux/mali_kernel_linux.c
+@@ -7,7 +7,7 @@
+  * A copy of the licence is included with the program, and can also be obtained from Free Software
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  */
+-
++#define HAVE_UNLOCKED_IOCTL
+ /**
+  * @file mali_kernel_linux.c
+  * Implementation of the Linux device driver entrypoints
