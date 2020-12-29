@@ -1,0 +1,3 @@
+# This ensures that uinput is seen as a keyboard
+ACTION=="add|change", KERNEL=="event0", ENV{ID_INPUT_KEY}="1"
+ACTION=="add|change", KERNEL=="event1", ENV{ID_INPUT_KEY}="1"

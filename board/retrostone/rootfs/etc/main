@@ -2,10 +2,20 @@
 export HOME=/home/retrostone
 export SDL_NOMOUSE=1
 export LIBVA_DRIVER_NAME=v4l2_request
+
+export LOVE_GRAPHICS_USE_OPENGLES=1
+export SDL_FB_BROKEN_MODES=1
+export SDL_VIDEO_KMSDRM_SCALING_KEY=120
+#export SDL_JOYSTICK_DEVICE=/dev/input/event1
+
 START=$HOME/autoexec.sh
 
 while [ 1 ]
-do
+do  
 	cd $HOME
+if [ -f $START ]; then
+	exec $START
+else
 	gmenu2x
+fi
 done
