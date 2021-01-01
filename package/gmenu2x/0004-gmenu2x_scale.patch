@@ -1,0 +1,137 @@
+--- a/src/surface.h
++++ b/src/surface.h
+@@ -61,7 +61,8 @@
+ 	void blit(Surface& destination, SDL_Rect container, Font::HAlign halign = Font::HAlignLeft, Font::VAlign valign = Font::VAlignTop) const;
+ 	void blitCenter(Surface& destination, int x, int y, int w=0, int h=0, int a=-1) const;
+ 	void blitRight(Surface& destination, int x, int y, int w=0, int h=0, int a=-1) const;
+-
++	void blitscale(Surface& destination, int x, int y, int w=0, int h=0, int a=-1) const;
++	void blitscale(Surface& destination, SDL_Rect container, Font::HAlign halign = Font::HAlignLeft, Font::VAlign valign = Font::VAlignTop) const;
+ 	void box(SDL_Rect re, RGBAColor c);
+ 	void box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, RGBAColor c) {
+ 		box(SDL_Rect{ x, y, w, h }, c);
+@@ -88,6 +89,7 @@
+ 
+ private:
+ 	void blit(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
++	void blitscale(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+ 	void blitCenter(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+ 	void blitRight(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+ 
+
+--- a/src/surface.cpp
++++ b/src/surface.cpp
+@@ -89,6 +89,13 @@
+ 	blit(destination.raw, x, y, w, h, a);
+ }
+ 
++void Surface::blitscale(SDL_Surface *destination, int x, int y, int w, int h, int a) const {
++	SDL_SoftStretch(raw, NULL, destination, NULL);
++}
++void Surface::blitscale(Surface& destination, int x, int y, int w, int h, int a) const {
++	blitscale(destination.raw, x, y, w, h, a);
++}
++
+ void Surface::blitCenter(SDL_Surface *destination, int x, int y, int w, int h, int a) const {
+ 	int ow = raw->w / 2; if (w != 0) ow = min(ow, w / 2);
+ 	int oh = raw->h / 2; if (h != 0) oh = min(oh, h / 2);
+
+--- a/src/textdialog.cpp
++++ b/src/textdialog.cpp
+@@ -92,7 +92,7 @@
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+ 
+-		bg.blit(s, 0, 0);
++		bg.blitscale(s, 0, 0);
+ 		drawText(text, contentY, firstRow, rowsPerPage);
+ 		s.flip();
+ 
+--- a/src/wallpaperdialog.cpp
++++ b/src/wallpaperdialog.cpp
+@@ -82,7 +82,7 @@
+ 			firstElement = selected;
+ 
+ 		//Wallpaper
+-		gmenu2x.sc[((string)"skin:wallpapers/" + wallpapers[selected]).c_str()]->blit(s, 0, 0);
++		gmenu2x.sc[((string)"skin:wallpapers/" + wallpapers[selected]).c_str()]->blitscale(s, 0, 0);
+ 
+ 		gmenu2x.drawTopBar(s);
+ 		gmenu2x.drawBottomBar(s);
+--- a/src/messagebox.cpp
++++ b/src/messagebox.cpp
+@@ -105,7 +105,7 @@
+ 	}
+ 
+ 	bg.convertToDisplayFormat();
+-	bg.blit(s, 0, 0);
++	bg.blitscale(s, 0, 0);
+ 	s.flip();
+ 
+ 	int result = -1;
+--- a/src/browsedialog.cpp
++++ b/src/browsedialog.cpp
+@@ -218,7 +218,7 @@
+ 	buttonBox.paint(bg, 5, gmenu2x.height() - 1);
+ 
+ 	bg.convertToDisplayFormat();
+-	bg.blit(s, 0, 0);
++	bg.blitscale(s, 0, 0);
+ 
+ 	// TODO(MtH): I have no idea what the right value of firstElement would be,
+ 	//            but originally it was undefined and that is never a good idea.
+--- a/src/inputdialog.cpp
++++ b/src/inputdialog.cpp
+@@ -159,7 +159,7 @@
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+ 
+-		bg.blit(s, 0, 0);
++		bg.blitscale(s, 0, 0);
+ 
+ 		box.w = gmenu2x.font->getTextWidth(input) + 18;
+ 		box.x = 160 - box.w / 2;
+--- a/src/background.cpp
++++ b/src/background.cpp
+@@ -16,7 +16,7 @@
+ 	auto& font = *gmenu2x.font;
+ 	const auto& bgmain = gmenu2x.bgmain;
+ 
+-	bgmain->blit(s, 0, 0);
++	bgmain->blitscale(s, 0, 0);
+ 
+ #ifdef ENABLE_CLOCK
+ 	font.write(s, clock.getTime(),
+--- a/src/selector.cpp
++++ b/src/selector.cpp
+@@ -100,7 +100,7 @@
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+ 
+-		bg.blit(s, 0, 0);
++		bg.blitscale(s, 0, 0);
+ 
+ 		if (fl.size() == 0) {
+ 			gmenu2x.font->write(s, "(" + gmenu2x.tr["no items"] + ")",
+--- a/src/settingsdialog.cpp
++++ b/src/settingsdialog.cpp
+@@ -60,7 +60,7 @@
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+ 
+-		bg.blit(s, 0, 0);
++		bg.blitscale(s, 0, 0);
+ 
+ 		gmenu2x.drawTopBar(s);
+ 		//link icon
+--- a/src/linkapp.cpp
++++ b/src/linkapp.cpp
+@@ -463,7 +463,7 @@
+ 			OutputSurface& s = *gmenu2x.s;
+ 
+ 			if (repaint) {
+-				bg->blit(s, 0, 0);
++				bg->blitscale(s, 0, 0);
+ 				pngman->blit(s, -page * gmenu2x.width(), 0);
+ 
+ 				gmenu2x.drawBottomBar(s);

@@ -1,0 +1,333 @@
+diff --git a/src/browsedialog.cpp b/src/browsedialog.cpp
+index 93d1a4bd..87db8a0d 100644
+--- a/src/browsedialog.cpp
++++ b/src/browsedialog.cpp
+@@ -10,6 +10,23 @@ using std::bind;
+ using std::string;
+ using std::unique_ptr;
+ 
++static char rm_tmp_chr[256];
++
++void TTS(const char* text)
++{
++	extern int tts;
++	char tmp_chr[256];
++	
++	if(strcmp(text, rm_tmp_chr) == 0) return;
++	
++	if (tts == 1)
++	{
++		system("killall espeak"); snprintf(tmp_chr, sizeof(tmp_chr), "espeak '%s' &", text);
++		snprintf(rm_tmp_chr, sizeof(rm_tmp_chr), "%s", text);
++		system(tmp_chr);
++	}
++}
++
+ BrowseDialog::BrowseDialog(
+ 		GMenu2X& gmenu2x,
+ 		const string &title, const string &subtitle)
+@@ -227,6 +244,9 @@ void BrowseDialog::paint()
+ 	iY = topBarHeight + 1 + (selected - firstElement) * rowHeight;
+ 	s.box(2, iY, gmenu2x.width() - 12, rowHeight - 1,
+ 			gmenu2x.skinConfColors[COLOR_SELECTION_BG]);
++	
++	// Gameblabla
++	TTS(fl[selected].c_str());
+ 
+ 	lastElement = firstElement + numRows;
+ 	if (lastElement > fl.size())
+@@ -248,6 +268,7 @@ void BrowseDialog::paint()
+ 			icon = iconFile;
+ 		}
+ 		icon->blit(s, 5, offsetY);
++		
+ 		gmenu2x.font->write(s, fl[i], 24, offsetY + rowHeight / 2,
+ 				Font::HAlignLeft, Font::VAlignMiddle);
+ 
+diff --git a/src/contextmenu.cpp b/src/contextmenu.cpp
+index fdab1248..f5fdf58a 100644
+--- a/src/contextmenu.cpp
++++ b/src/contextmenu.cpp
+@@ -143,6 +143,7 @@ void ContextMenu::paint(Surface &s)
+ }
+ 
+ bool ContextMenu::handleButtonPress(InputManager::Button button) {
++	extern void TTS(const char* text);
+ 	switch (button) {
+ 		case InputManager::MENU:
+ 			dismiss();
+@@ -150,10 +151,12 @@ bool ContextMenu::handleButtonPress(InputManager::Button button) {
+ 		case InputManager::UP:
+ 			selected--;
+ 			if (selected < 0) selected = options.size() - 1;
++			TTS(options[selected]->text.c_str());
+ 			break;
+ 		case InputManager::DOWN:
+ 			selected++;
+ 			if (selected >= static_cast<int>(options.size())) selected = 0;
++			TTS(options[selected]->text.c_str());
+ 			break;
+ 		case InputManager::ACCEPT:
+ 			options[selected]->action();
+diff --git a/src/gmenu2x.cpp b/src/gmenu2x.cpp
+index 6ecd5ebf..892b5366 100644
+--- a/src/gmenu2x.cpp
++++ b/src/gmenu2x.cpp
+@@ -79,6 +79,8 @@
+ 
+ using namespace std;
+ 
++int tts = 0;
++
+ static GMenu2X *app;
+ static string gmenu2x_home;
+ 
+@@ -468,6 +470,8 @@
+ 	evalIntConf( confInt, "backlightTimeout", 15, 0,120 );
+ 	evalIntConf( confInt, "buttonRepeatRate", 10, 0, 20 );
+ 	evalIntConf( confInt, "videoBpp", 32, 16, 32 );
++	evalIntConf( confInt, "tts_selection", 0, 0,1 );
++	tts = confInt["tts_selection"];
+ 
+ 	if (confStr["tvoutEncoding"] != "PAL") confStr["tvoutEncoding"] = "NTSC";
+ }
+@@ -676,6 +680,10 @@
+ 			*this, tr["Button repeat rate"],
+ 			tr["Set button repetitions per second"],
+ 			&confInt["buttonRepeatRate"], 0, 20)));
++	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
++			*this, tr["Text to speech engine"],
++			tr["It talks when stuff is selected"],
++			&confInt["tts_selection"])));
+ 	if (brightnessmanager->available()) {
+ 		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingInt(
+ 				*this, tr["Brightness level"],
+@@ -696,7 +704,7 @@
+ 			tr.setLang(lang);
+ 			confStr["lang"] = lang;
+ 		}
+-
++		tts = confInt["tts_selection"];
+ 		writeConfig();
+ 	}
+ }
+diff --git a/src/helppopup.cpp b/src/helppopup.cpp
+index e684420f..b10848e1 100644
+--- a/src/helppopup.cpp
++++ b/src/helppopup.cpp
+ }
+ 
+ void HelpPopup::paint(Surface& s) {
++	extern void TTS(const char* text);
+ 	auto& font = *gmenu2x.font;
+ 	Translator &tr = gmenu2x.tr;
+ 
+@@ -23,6 +24,8 @@
+ 		"SELECT: Show contextual menu",
+ 		"START: Show options menu",
+ 	};
++	extern void TTS(const char* text);
++	TTS("Controls ! A button to Confirm selection. Bee button to show help menu. Left Shoulder and Right shoulder buttons to change section. Select to show contextual menu. Start for Options");
+ 
+ 	unsigned int nb_strings = sizeof(strings) / sizeof(strings[0]);
+ 	unsigned int spacing = font.getLineSpacing();
+
+diff --git a/src/inputmanager.h b/src/inputmanager.h
+index 33f61466..e8587537 100644
+--- a/src/inputmanager.h
++++ b/src/inputmanager.h
+@@ -40,8 +40,13 @@ enum EventCode {
+ };
+ 
+ #ifndef SDL_JOYSTICK_DISABLED
++#ifdef OGA
++#define AXIS_STATE_POSITIVE 1
++#define AXIS_STATE_NEGATIVE 0
++#else
+ #define AXIS_STATE_POSITIVE 0
+ #define AXIS_STATE_NEGATIVE 1
++#endif
+ struct Joystick {
+ 	SDL_Joystick *joystick;
+ 	bool axisState[2][2];
+diff --git a/src/menu.cpp b/src/menu.cpp
+index 6b66b84c..48ed7f94 100644
+--- a/src/menu.cpp
++++ b/src/menu.cpp
+@@ -193,6 +193,7 @@
+ }
+ 
+ void Menu::paint(Surface &s) {
++	extern void TTS(const char* text);
+ 	const uint32_t width = s.width(), height = s.height();
+ 	auto &font = *gmenu2x.font;
+ 	SurfaceCollection &sc = gmenu2x.sc;
+@@ -279,6 +280,8 @@
+ 
+ 		sectionLinks.at(i)->paint();
+ 	}
++	
++	TTS(links[iSection].at(iLink)->getTitle().c_str());
+ 
+ 	if (selLink())
+ 		selLink()->paintDescription(width / 2, height - bottomBarHeight + 2);
+@@ -298,6 +301,7 @@
+ }
+ 
+ bool Menu::handleButtonPress(InputManager::Button button) {
++	extern void TTS(const char* text);
+ 	switch (button) {
+ 		case InputManager::ACCEPT:
+ 			if (selLink() != NULL) selLink()->run();
+--- a/src/linkapp.cpp
++++ b/src/linkapp.cpp
+@@ -551,8 +551,14 @@
+ }
+ 
+ unique_ptr<Launcher> LinkApp::prepareLaunch(const string &selectedFile) {
++	extern int tts;
+ 	if (!save()) {
+ 		ERROR("Error saving app settings to '%s'.\n", file.c_str());
++	}
++	if (tts == 1)
++	{
++		system("killall espeak");
++		tts = 0;
+ 	}
+ 
+ 	if (!isOpk()) {
+
+diff --git a/src/selector.cpp b/src/selector.cpp
+index 8f92dbae..0f662ff1 100644
+--- a/src/selector.cpp
++++ b/src/selector.cpp
+@@ -48,6 +48,7 @@ Selector::Selector(GMenu2X& gmenu2x, LinkApp& link, const string &selectorDir)
+ }
+ 
+ int Selector::exec(int startSelection) {
++	extern void TTS(const char* text);
+ 	const bool showDirectories = link.getSelectorBrowser();
+ 
+ 	FileLister fl;
+@@ -97,6 +98,9 @@ int Selector::exec(int startSelection) {
+ 	unsigned int selected = constrain(startSelection, 0, fl.size() - 1);
+ 
+ 	bool close = false, result = true;
++	
++	TTS(fl[selected].c_str());
++	
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+ 
+@@ -162,6 +166,7 @@ int Selector::exec(int startSelection) {
+ 			case InputManager::UP:
+ 				if (selected == 0) selected = fl.size() -1;
+ 				else selected -= 1;
++				TTS(fl[selected].c_str());
+ 				break;
+ 
+ 			case InputManager::ALTLEFT:
+@@ -169,11 +174,13 @@ int Selector::exec(int startSelection) {
+ 					selected = 0;
+ 				else
+ 					selected -= nb_elements - 1;
++				TTS(fl[selected].c_str());
+ 				break;
+ 
+ 			case InputManager::DOWN:
+ 				if (selected+1>=fl.size()) selected = 0;
+ 				else selected += 1;
++				TTS(fl[selected].c_str());
+ 				break;
+ 
+ 			case InputManager::ALTRIGHT:
+@@ -181,6 +188,7 @@ int Selector::exec(int startSelection) {
+ 					selected = fl.size() - 1;
+ 				else
+ 					selected += nb_elements - 1;
++				TTS(fl[selected].c_str());
+ 				break;
+ 
+ 			case InputManager::CANCEL:
+diff --git a/src/settingsdialog.cpp b/src/settingsdialog.cpp
+index 27300236..34120abe 100644
+--- a/src/settingsdialog.cpp
++++ b/src/settingsdialog.cpp
+@@ -42,6 +42,7 @@ SettingsDialog::SettingsDialog(
+ }
+ 
+ bool SettingsDialog::exec() {
++	extern void TTS(const char* text);
+ 	OffscreenSurface bg(*gmenu2x.bg);
+ 	bg.convertToDisplayFormat();
+ 
+@@ -56,6 +57,8 @@ bool SettingsDialog::exec() {
+ 	for (auto it = settings.begin(); it != settings.end(); it++) {
+ 		maxNameWidth = max(maxNameWidth, (uint) gmenu2x.font->getTextWidth((*it)->getName()));
+ 	}
++	
++	TTS(settings[sel]->getName().c_str());
+ 
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+@@ -102,10 +105,12 @@ bool SettingsDialog::exec() {
+ 					} else {
+ 						sel -= 1;
+ 					}
++					TTS(settings[sel]->getName().c_str());
+ 					break;
+ 				case InputManager::DOWN:
+ 					sel += 1;
+ 					if (sel>=settings.size()) sel = 0;
++					TTS(settings[sel]->getName().c_str());
+ 				default:
+ 					break;
+ 			}
+diff --git a/src/wallpaperdialog.cpp b/src/wallpaperdialog.cpp
+index 9f453d68..ed23951b 100644
+--- a/src/wallpaperdialog.cpp
++++ b/src/wallpaperdialog.cpp
+@@ -39,6 +39,7 @@ WallpaperDialog::WallpaperDialog(GMenu2X& gmenu2x)
+ 
+ bool WallpaperDialog::exec()
+ {
++	extern void TTS(const char* text);
+ 	bool close = false, result = true;
+ 
+ 	FileLister fl;
+@@ -70,6 +71,8 @@ bool WallpaperDialog::exec()
+ 
+ 	int fontheight = gmenu2x.font->getLineSpacing();
+ 	unsigned int nb_elements = height / fontheight;
++	
++	TTS(wallpapers[selected].c_str());
+ 
+ 	while (!close) {
+ 		OutputSurface& s = *gmenu2x.s;
+@@ -118,22 +121,26 @@ bool WallpaperDialog::exec()
+             case InputManager::UP:
+                 if (selected == 0) selected = wallpapers.size()-1;
+                 else selected -= 1;
++                TTS(wallpapers[selected].c_str());
+                 break;
+             case InputManager::ALTLEFT:
+                 if ((int)(selected - nb_elements + 1) < 0)
+ 					selected = 0;
+                 else
+ 					selected -= nb_elements - 1;
++					TTS(wallpapers[selected].c_str());
+                 break;
+             case InputManager::DOWN:
+                 if (selected+1 >= wallpapers.size()) selected = 0;
+                 else selected += 1;
++                TTS(wallpapers[selected].c_str());
+                 break;
+             case InputManager::ALTRIGHT:
+                 if (selected + nb_elements - 1 >= wallpapers.size())
+ 					selected = wallpapers.size() - 1;
+                 else
+ 					selected += nb_elements - 1;
++					TTS(wallpapers[selected].c_str());
+                 break;
+             case InputManager::ACCEPT:
+                 close = true;

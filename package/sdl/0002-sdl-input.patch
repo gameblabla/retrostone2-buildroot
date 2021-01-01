@@ -9,6 +9,15 @@
  	udev_enumerate_scan_devices(enumerate);
  
  	devices = udev_enumerate_get_list_entry(enumerate);
+@@ -115,6 +115,8 @@
+ 
+ 	for (; devs; devs = devs->next)
+ 		kmsdrm_dbg_printf("Found mouse: %s\n", devs->path);
++	
++	this->hidden->scaling_mode = DRM_SCALING_MODE_FULLSCREEN;
+ }
+ 
+ void KMSDRM_ExitInput(_THIS)
 @@ -235,7 +235,7 @@
  	[KEY_INSERT] = SDLK_INSERT,
  	[KEY_DELETE] = SDLK_DELETE,

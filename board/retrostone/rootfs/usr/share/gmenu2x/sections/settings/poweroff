@@ -1,4 +1,0 @@
-title=Poweroff
-description=Turn off the console
-icon=skin:icons/poweroff.png
-exec=/sbin/poweroff

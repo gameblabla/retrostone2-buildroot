@@ -4,14 +4,11 @@ so it can fallback to using a software shadow surface.
 
 --- a/src/video/kmsdrm/SDL_kmsdrmvideo.c
 +++ b/src/video/kmsdrm/SDL_kmsdrmvideo.c
-@@ -315,9 +315,15 @@
- 	}
- }
+@@ -317,7 +317,14 @@
  
--static int KMSDRM_VideoModeOK(_THIS, int width, int height, int bpp, Uint32 flags)
--{
+ static int KMSDRM_VideoModeOK(_THIS, int width, int height, int bpp, Uint32 flags)
+ {
 -	return (bpp); /* TODO: check that the resolution is really OK */
-+static int KMSDRM_VideoModeOK(_THIS, int width, int height, int bpp, Uint32 flags) {
 +	switch(bpp)
 +	{
 +		default:
@@ -23,3 +20,33 @@ so it can fallback to using a software shadow surface.
  }
  
  static int KMSDRM_SetCrtcParams(_THIS, drmModeAtomicReqPtr req, Uint32 plane_id,
+@@ -327,18 +334,6 @@
+ 	unsigned int crtc_w, crtc_h;
+ 
+ 	switch (this->hidden->scaling_mode) {
+-	case DRM_SCALING_MODE_ASPECT_RATIO:
+-		if (width * mode_height * drm_active_pipe->factor_w >
+-		    height * mode_width * drm_active_pipe->factor_h) {
+-			crtc_w = mode_width;
+-			crtc_h = drm_active_pipe->factor_h * crtc_w * height /
+-				(width * drm_active_pipe->factor_w);
+-		} else {
+-			crtc_h = mode_height;
+-			crtc_w = drm_active_pipe->factor_w * crtc_h * width /
+-				(height * drm_active_pipe->factor_h);
+-		}
+-		break;
+ 	case DRM_SCALING_MODE_INTEGER_SCALED:
+ 		if (width <= mode_width / drm_active_pipe->factor_w &&
+ 		    height <= mode_height / drm_active_pipe->factor_h) {
+
+--- a/src/video/kmsdrm/SDL_kmsdrmvideo.h
++++ b/src/video/kmsdrm/SDL_kmsdrmvideo.h
+@@ -97,7 +97,6 @@
+ 
+ typedef enum {
+ 	DRM_SCALING_MODE_FULLSCREEN,
+-	DRM_SCALING_MODE_ASPECT_RATIO,
+ 	DRM_SCALING_MODE_INTEGER_SCALED,
+ 	DRM_SCALING_MODE_END,
+ } drm_scaling_mode;

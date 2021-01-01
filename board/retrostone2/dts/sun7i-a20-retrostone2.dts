@@ -226,16 +226,18 @@
 			linux,code = <KEY_PAGEDOWN>;
 			gpios = <&pio 7 26 GPIO_ACTIVE_LOW>;
 		};
-		/*button@16 {
+		button@16 {
 			label = "Plus button";
-			linux,code = <KEY_KPSLASH>;
+			linux,code = <KEY_SCALE>;
 			gpios = <&pio 2 18 GPIO_ACTIVE_LOW>;
 		};
+		/*
 		button@17 {
 			label = "Minus button";
-			linux,code = <KEY_KPDOT>;
+			linux,code = <KEY_SCALE>;
 			gpios = <&pio 2 22 GPIO_ACTIVE_LOW>;
-		};*/
+		};
+		*/
 	};
 	
 	mmc2_pwrseq: mmc2_pwrseq {
@@ -296,11 +298,9 @@
 	};
 };
 
-/*
 &hdmi_audio {
 	status = "okay";
 };
-*/
 
 &i2c0 {
 	status = "okay";
