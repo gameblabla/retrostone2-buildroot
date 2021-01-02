@@ -14,7 +14,9 @@ START=$HOME/autoexec.sh
 while [ 1 ]
 do
 	cd $HOME
-	/usr/bin/reset
+	SDL_VIDEO_REFRESHRATE="50"
+	/usr/bin/reset.elf
+	SDL_VIDEO_REFRESHRATE="60"
 if [ -f $START ]; then
 	exec $START
 else

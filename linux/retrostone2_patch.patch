@@ -2,29 +2,6 @@ diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
 index 9ad8e445b..9b0b830f5 100644
 --- a/arch/arm/boot/dts/sun7i-a20.dtsi
 +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -67,11 +67,11 @@
- 			compatible = "allwinner,simple-framebuffer",
- 				     "simple-framebuffer";
- 			allwinner,pipeline = "de_be0-lcd0-hdmi";
--			clocks = <&ccu CLK_AHB_LCD0>, <&ccu CLK_AHB_HDMI0>,
-+			clocks = <&ccu CLK_AHB_HDMI0>,
- 				 <&ccu CLK_AHB_DE_BE0>, <&ccu CLK_DE_BE0>,
- 				 <&ccu CLK_TCON0_CH1>, <&ccu CLK_DRAM_DE_BE0>,
- 				 <&ccu CLK_HDMI>;
--			status = "disabled";
-+			status = "okay";
- 		};
- 
- 		framebuffer-lcd0 {
-@@ -92,7 +92,7 @@
- 				 <&ccu CLK_AHB_DE_BE0>,
- 				 <&ccu CLK_DE_BE0>, <&ccu CLK_TCON0_CH1>,
- 				 <&ccu CLK_DRAM_TVE0>, <&ccu CLK_DRAM_DE_BE0>;
--			status = "disabled";
-+			status = "okay";
- 		};
- 	};
- 
 @@ -649,6 +649,7 @@
  		};
  
