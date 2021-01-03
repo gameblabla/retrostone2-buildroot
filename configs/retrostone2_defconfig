@@ -7,6 +7,7 @@ BR2_BINUTILS_VERSION_2_35_X=y
 BR2_GCC_VERSION_10_X=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
 BR2_GCC_ENABLE_LTO=y
+BR2_TARGET_OPTIMIZATION="-fno-PIC -march=armv7-a+neon-vfpv4 -mtune=cortex-a7 -mfpu=neon-vfpv4 -mvectorize-with-neon-quad"
 BR2_TARGET_GENERIC_HOSTNAME="retrostone"
 BR2_TARGET_GENERIC_ISSUE="Welcome to Retrostone2's Useless CFW !"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y

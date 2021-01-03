@@ -2,6 +2,9 @@
 
 /usr/bin/brightness_daemon &
 
+echo on > /sys/class/drm/card1-Unknown-1/status
+echo off > /sys/class/drm/card1-HDMI-A-1/status
+
 #udevadm control --reload-rules
 #udevadm trigger
 
