@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-LIBVA_V4L2_REQUEST_VERSION = 3e2fd00dbbb58beb7da58a9cd85ff15e95ae7ca4
-LIBVA_V4L2_REQUEST_SITE = $(call github,Sash0k,libva-v4l2-request,$(LIBVA_V4L2_REQUEST_VERSION))
+LIBVA_V4L2_REQUEST_VERSION = 387ac1c17c82e16ea3810a0e3310675e6296d9ac
+LIBVA_V4L2_REQUEST_SITE = $(call github,CalcProgrammer1,libva-v4l2-request,$(LIBVA_V4L2_REQUEST_VERSION))
 LIBVA_V4L2_REQUEST_LICENSE = LGPL-2.1+
 LIBVA_V4L2_REQUEST_LICENSE_FILES = COPYING
 LIBVA_V4L2_REQUEST_INSTALL_STAGING = YES

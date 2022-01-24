@@ -9,10 +9,13 @@ echo off > /sys/class/drm/card1-HDMI-A-1/status
 #udevadm trigger
 
 /usr/sbin/parted -s "/dev/mmcblk0" "resizepart 2 -1"
-/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
-/usr/bin/ntfsresize -i -f "/dev/mmcblk0p2"
-/usr/bin/ntfsresize --force --force "/dev/mmcblk0p2"
-/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
+#/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
+#/usr/bin/ntfsresize -i -f "/dev/mmcblk0p2"
+#/usr/bin/ntfsresize --force --force "/dev/mmcblk0p2"
+#/usr/bin/ntfsfix -d "/dev/mmcblk0p2"
+fsck.vfat -a -y "/dev/mmcblk0p2"
+fatresize
+fsck.vfat -a -y "/dev/mmcblk0p2"
 
 # Setting permissions
 chown root:video /sys/class/graphics/fb0/blank
@@ -39,4 +42,5 @@ amixer -c 0 sset 'Power Amplifier' 72% > /dev/null 2>&1;
 amixer -c 0 sset 'Master' 100% > /dev/null 2>&1;
 
 # Mount our partition
-/bin/mount -t ntfs3 /dev/mmcblk0p2 /home/retrostone -o noatime,nodiratime,suid,dev,exec,async,uid=1000,gid=100,umask=022,fmask=022,dmask=022,discard,nls=utf8,prealloc,force
+#/bin/mount -t ntfs3 /dev/mmcblk0p2 /home/retrostone -o noatime,nodiratime,suid,dev,exec,async,uid=1000,gid=100,umask=022,fmask=022,dmask=022,discard,nls=utf8,prealloc,force
+/bin/mount -t vfat /dev/mmcblk0p2 /home/retrostone -o rw,sync,utf8
